@@ -290,6 +290,8 @@
         });
 
         document.getElementById('startRecording').addEventListener('click', () => {
+            recordedLocations.push({recording_start_at: Date.now(),});
+            alert("You have started recording");
             recording = true;
             document.getElementById('startRecording').disabled = true;
             document.getElementById('ParticipantID').disabled = true;
