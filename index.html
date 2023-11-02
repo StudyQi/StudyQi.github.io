@@ -49,7 +49,7 @@
         map.setMinZoom(16);
         // Add zoom and rotation controls to the map.
         map.addControl(new mapboxgl.NavigationControl());
-        /*
+        
         map.addControl(
             new mapboxgl.GeolocateControl({
             positionOptions: {
@@ -61,7 +61,7 @@
             showUserHeading: true,
             showAccuracyCircle: false
             })
-        );*/
+        );
         document.getElementById('Route_1').addEventListener('click', () => {
             map.addSource('route', {
                 'type': 'geojson',
@@ -93,7 +93,7 @@
                 },
                 'paint': {
                 'line-color': '#2b6999',
-                'line-width': 13
+                'line-width': 8
                     }
             });
             map.addLayer({
@@ -115,45 +115,25 @@
                 'circle-color': '#000000' 
                 }
             });
-
-            map.loadImage(
-                'https://i.ibb.co/ZgLJrsL/my-icon.png',
-                (error, image) => {
-                    if (error) throw error;
- 
-                    // Add the image to the map style.
-                map.addImage('my-icon', image);
- 
-                    // Add a data source containing one point feature.
-                map.addSource('point', {
-                    'type': 'geojson',
-                    'data': {
-                    'type': 'FeatureCollection',
-                    'features': [
-                    {   
-                    'type': 'Feature',
-                    'geometry': {
-                    'type': 'Point',
-                    'coordinates': [8.54283698, 47.40517359]
-                        }
+            map.addLayer({
+                id: 'end', 
+                type: 'circle',
+                source: {
+                type: 'geojson',
+                data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                type: 'Point',
+                coordinates: [8.54279698, 47.40514359], 
                     }
-                    ]
-                    }
-                });
- 
-                    // Add a layer to use the image to represent the data.
-                map.addLayer({
-                    'id': 'points',
-                    'type': 'symbol',
-                    'source': 'point', // reference the data source
-                    'layout': {
-                    'icon-image': 'my-icon', // reference the image
-                    'icon-size': 0.07
-                    }
-                });
                 }
-            );
-
+            },
+            paint: {
+                'circle-radius': 8, 
+                'circle-color': '#000000' 
+                }
+            });
             map.addLayer({
                 'id': 'mask',
                 'type': 'fill',
@@ -209,7 +189,7 @@
                 },
                 'paint': {
                 'line-color': '#2b6999',
-                'line-width': 13
+                'line-width': 8
                     }
             });
             map.addLayer({
@@ -231,45 +211,25 @@
                     'circle-color': '#000000' 
                 }
             });
-
-            map.loadImage(
-                'https://i.ibb.co/ZgLJrsL/my-icon.png',
-                (error, image) => {
-                    if (error) throw error;
- 
-                    // Add the image to the map style.
-                map.addImage('my-icon', image);
- 
-                    // Add a data source containing one point feature.
-                map.addSource('point', {
-                    'type': 'geojson',
-                    'data': {
-                    'type': 'FeatureCollection',
-                    'features': [
-                    {   
-                    'type': 'Feature',
-                    'geometry': {
-                    'type': 'Point',
-                    'coordinates': [8.54110091, 47.40305374]
-                        }
+            map.addLayer({
+                id: 'end', 
+                type: 'circle',
+                source: {
+                type: 'geojson',
+                data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                type: 'Point',
+                coordinates: [8.54109091, 47.40303374], 
                     }
-                    ]
-                    }
-                });
- 
-                    // Add a layer to use the image to represent the data.
-                map.addLayer({
-                    'id': 'points',
-                    'type': 'symbol',
-                    'source': 'point', // reference the data source
-                    'layout': {
-                    'icon-image': 'my-icon', // reference the image
-                    'icon-size': 0.07
-                    }
-                });
                 }
-            );
-
+            },
+            paint: {
+                'circle-radius': 8, 
+                'circle-color': '#000000' 
+                }
+            });
             map.addLayer({
                 'id': 'mask',
                 'type': 'fill',
@@ -285,11 +245,44 @@
         });
 
         /* RECORDING CONTROL */
+        //Kalman filter for GPS location smoothing
+        class GPSKalmanFilter {
+          constructor (decay, variance, minAccuracy) {
+          this.decay = decay
+          this.variance = variance
+          this.minAccuracy = minAccuracy
+        }
+        process (lat, lng, accuracy, timestampInMs) {
+          if (accuracy < this.minAccuracy) accuracy = this.minAccuracy
+          if (this.variance < 0) {
+          this.timestampInMs = timestampInMs
+          this.lat = lat
+          this.lng = lng
+          this.variance = accuracy * accuracy
+          } else {
+            const timeIncMs = timestampInMs - this.timestampInMs
+
+            if (timeIncMs > 0) {
+              this.variance += (timeIncMs * this.decay * this.decay) / 1000
+              this.timestampInMs = timestampInMs
+            }
+
+            const _k = this.variance / (this.variance + (accuracy * accuracy))
+            this.lat += _k * (lat - this.lat)
+            this.lng += _k * (lng - this.lng)
+
+            this.variance = (1 - _k) * this.variance
+            }
+          return [this.lng, this.lat]
+          } 
+        }
         // Initialize variables for location recording
         let recording = false;
         const recordedLocations = [];
         const recordedInteractions = [];
         var participant;
+        let kalmanFilter = new GPSKalmanFilter(5,-1,1)
+        var updatedCoords;
         // Function to start recording
         document.getElementById('ParticipantID').addEventListener('click', () => {
             participant = prompt('Please input participant ID', 999);
@@ -309,17 +302,13 @@
         });
         // Function to stop recording
         document.getElementById('stopRecording').addEventListener('click', () => {
-            var r=confirm("Are you sure you want to stop recording?");
-                if (r==true)
-                {
-                recording = false;
-                document.getElementById('ParticipantID').disabled = false;
-                document.getElementById('startRecording').disabled = false;
-                document.getElementById('stopRecording').disabled = true;
-                document.getElementById('Download_Locations').disabled = false;
-                document.getElementById('Download_Interactions').disabled = false;
-                stopRecording();
-                }
+            recording = false;
+            document.getElementById('ParticipantID').disabled = false;
+            document.getElementById('startRecording').disabled = false;
+            document.getElementById('stopRecording').disabled = true;
+            document.getElementById('Download_Locations').disabled = false;
+            document.getElementById('Download_Interactions').disabled = false;
+            stopRecording();
         });
         // Funcation to download 
         document.getElementById('Download_Locations').addEventListener('click', () => {
@@ -344,9 +333,10 @@
             var Mylong = position.coords.longitude
             var Myaccuracy = position.coords.accuracy
             var Mytime = Date.now()
+            updatedCoords= kalmanFilter.process(Mylat, Mylong, Myaccuracy, Mytime)
 
             if (recording) {
-                recordedLocations.push({Mylat, Mylong, Mytime, Myaccuracy});
+                recordedLocations.push({updatedCoords, Mylat, Mylong, Mytime, Myaccuracy});
             }
 /*
             if (map.getLayer("Current")) {
@@ -362,7 +352,7 @@
                     properties: {},
                     geometry: {
                     type: 'Point',
-                    coordinates: [Mylong, Mylat] 
+                    coordinates: [updatedCoords[0], updatedCoords[1]] 
                         }
                     }
                 },
