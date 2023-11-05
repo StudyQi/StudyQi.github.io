@@ -123,7 +123,7 @@
                 };
                 nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
                 nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-                CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
+                CurrentPoint.features[0].geometry.coordinates = [Mylong, Mylat];
                 map.getSource('CurrentPoint').setData(CurrentPoint); 
                 map.addLayer({
                 'id': 'CurrentPoint', 
