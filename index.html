@@ -89,23 +89,8 @@
             'coordinates': [8.54384625978079, 47.40460386239871]
             }}]
         };
-
-        map.on('load', () => {
-            map.addSource('CurrentPoint', {
-                'type': 'geojson',
-                'data': CurrentPoint
-            });
         /* LOCATION */
-        //Real time location tracker
-            if (! navigator.geolocation){
-                console.log('your browser does not support the geolocation')
-            } else {
-                setInterval(() => {
-                    navigator.geolocation.getCurrentPosition(getPosition)
-                }, 500);
-            }
-        // Function to get and record current location
-            function getPosition(position){
+        function getPosition(position){
                 Mylat = position.coords.latitude
                 Mylong = position.coords.longitude
                 Myaccuracy = position.coords.accuracy
@@ -123,20 +108,9 @@
                 };
                 nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
                 nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-                CurrentPoint.features[0].geometry.coordinates = [Mylong, Mylat];
+                CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
                 map.getSource('CurrentPoint').setData(CurrentPoint); 
-                map.addLayer({
-                'id': 'CurrentPoint', 
-                'type': 'circle',
-                'source': 'CurrentPoint',
-                'paint': {
-                'circle-radius': 8, 
-                'circle-color': '#c65247' 
-                }
-                }); 
             }
-        });     
-
         /* ADD ROUTES */
         document.getElementById('Route_1').addEventListener('click', () => {
             myRoute = {"type": "FeatureCollection", "features": [{"type": "Feature", 
@@ -146,9 +120,10 @@
                 [8.5452452, 47.40567516], [8.54326881, 47.4063037], [8.54266823, 47.40542678], [8.54264543, 47.40535417], 
                 [8.54268969, 47.40511817], [8.54279698, 47.40514359]]}, 
                 "id": "232ee6a8-c4fc-4775-a7e6-a033cf8e6e9b", "properties": {"name": ""}}]}
-            map.addSource('route', {
+            map.setCenter([8.544270110877253, 47.40599603821031]);
+            map.addSource('CurrentPoint', {
                 'type': 'geojson',
-                'data': myRoute
+                'data': CurrentPoint
             });
             map.addSource('mask',{
                 'type': 'geojson',
@@ -159,6 +134,10 @@
                 "id": "bc2c8b6a-2a29-403e-9037-9541d0ed1e3c", "properties": {"name": ""}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": 
                 [[[8.5478003, 47.406561], [8.54213689, 47.40801108], [8.53048195, 47.41594992], [8.57380569, 47.41047264], [8.5478003, 47.406561]]]}, 
                 "id": "78f43455-180b-4c97-b0cc-25380d7f0741", "properties": {"name": ""}}]}
+            });
+            map.addSource('route', {
+                'type': 'geojson',
+                'data': myRoute
             });
             map.addLayer({
                 'id': 'route',
@@ -229,7 +208,6 @@
                 });
                 }
             );
-
             map.addLayer({
                 'id': 'mask',
                 'type': 'fill',
@@ -239,7 +217,19 @@
                     'fill-outline-color': 'rgb(255, 255, 255)'
                 }
             });
-            map.setCenter([8.544270110877253, 47.40599603821031]);
+            map.addLayer({
+                'id': 'CurrentPoint', 
+                'type': 'circle',
+                'source': 'CurrentPoint',
+                'paint': {
+                'circle-radius': 8, 
+                'circle-color': '#c65247' 
+                }
+                }); 
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(getPosition)
+            }, 200);
+        // Function to get and record current location
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -254,6 +244,11 @@
                 [8.54110682, 47.40416224], [8.5413669, 47.40390619], [8.5415357, 47.40371433], [8.5416172, 47.40361999], 
                 [8.54177266, 47.40345148], [8.54166473, 47.40340355], [8.54138024, 47.40327776], [8.54121608, 47.40317316], 
                 [8.54109091, 47.40303374]]}, "id": "a2ee216a-943f-4a61-b975-2e214b5dcf73", "properties": {"name": ""}}]}
+            map.setCenter([8.542623755567146, 47.40362428149714]); 
+            map.addSource('CurrentPoint', {
+                'type': 'geojson',
+                'data': CurrentPoint
+            });
             map.addSource('route', {
                 'type': 'geojson',
                 'data': myRoute
@@ -357,7 +352,19 @@
                     'fill-outline-color': 'rgb(255, 255, 255)'
                 }
             });
-            map.setCenter([8.542623755567146, 47.40362428149714]); 
+            map.addLayer({
+                'id': 'CurrentPoint', 
+                'type': 'circle',
+                'source': 'CurrentPoint',
+                'paint': {
+                'circle-radius': 8, 
+                'circle-color': '#c65247' 
+                }
+                }); 
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(getPosition)
+            }, 200);
+
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
