@@ -226,9 +226,6 @@
                 'circle-color': '#c65247' 
                 }
                 }); 
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(getPosition)
-            }, 200);
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -360,9 +357,6 @@
                 'circle-color': '#c65247' 
                 }
                 }); 
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(getPosition)
-            }, 200);
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -407,6 +401,14 @@
         document.getElementById('Download_Interactions').addEventListener('click', () => {
             downloadInteractionData();
         });
+        
+        if (! navigator.geolocation){
+            console.log('your browser does not support the geolocation')
+        } else {
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(getPosition)
+            }, 200);
+        }
 
         /* INTERACTION */
         function startRecording() {
