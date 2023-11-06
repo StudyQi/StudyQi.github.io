@@ -48,7 +48,7 @@
         });
         map.setMaxZoom(22);
         map.setMinZoom(16);
-        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.NavigationControl({visualizePitch:true}));
         // Add zoom and rotation controls to the map.
         /*
         map.addControl(
@@ -71,49 +71,46 @@
 
         // Initialize variables for mapping
         var myRoute
-        var desiredLocation 
-        var nearestPointOnLine
-        var nearestPointCoords
-        var Mylat
-        var Mylong
-        var Myaccuracy
-        var Mytime
-        var CurrentPoint
-        var time = 1
-        CurrentPoint = {
+        //var nearestPointOnLine
+        //var nearestPointCoords
+        //var Mylat
+        //var Mylong
+        //var Myaccuracy
+        //var Mytime
+        
+        /* LOCATION */
+        function getPosition(position){
+            var Mylat = position.coords.latitude
+            var Mylong = position.coords.longitude
+            var Myaccuracy = position.coords.accuracy
+            var Mytime = Date.now()
+            if (recording) {
+                recordedLocations.push({Mylong, Mylat, Mytime, Myaccuracy});
+            }
+            
+            var desiredLocation = {
+            "type": "Feature",
+            "geometry": {
+            "type": "Point",
+            "coordinates": [Mylong, Mylat] 
+            }
+            };
+        // Display the closest point on the route         
+            var nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
+            var nearestPointCoords = nearestPointOnLine.geometry.coordinates;
+            var CurrentPoint = {
             'type': 'FeatureCollection',
             'features': [{
             'type': 'Feature',
             'properties': {},
             'geometry': {
             'type': 'Point',
-            'coordinates': [8.54384625978079, 47.40460386239871]
+            'coordinates': [Mylong,Mylat]
             }}]
-        };
-        /* LOCATION */
-        function getPosition(position){
-                Mylat = position.coords.latitude
-                Mylong = position.coords.longitude
-                Myaccuracy = position.coords.accuracy
-                Mytime = Date.now()
-                if (recording) {
-                    recordedLocations.push({Mylat, Mylong, Mytime, Myaccuracy});
-                }
-            // Display the closest point on the route         
-                desiredLocation = {
-                    "type": "Feature",
-                    "geometry": {
-                    "type": "Point",
-                    "coordinates": [Mylong, Mylat] 
-                    }
-                };
-                nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
-                nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-                CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0]+0.00001*time, nearestPointCoords[1]];
-                //CurrentPoint.features[0].geometry.coordinates = [Mylong, Mylat];
-                map.getSource('CurrentPoint').setData(CurrentPoint); 
-                time = time + 1
-            }
+            };
+            //CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
+            map.getSource('CurrentPoint').setData(CurrentPoint); 
+        }
         /* ADD ROUTES */
         document.getElementById('Route_1').addEventListener('click', () => {
             myRoute = {"type": "FeatureCollection", "features": [{"type": "Feature", 
@@ -126,7 +123,7 @@
             map.setCenter([8.544270110877253, 47.40599603821031]);
             map.addSource('CurrentPoint', {
                 'type': 'geojson',
-                'data': CurrentPoint
+                'data': [8.54384625978079, 47.40460386239871]
             });
             map.addSource('mask',{
                 'type': 'geojson',
@@ -232,7 +229,6 @@
             setInterval(() => {
                 navigator.geolocation.getCurrentPosition(getPosition)
             }, 200);
-        // Function to get and record current location
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -250,7 +246,7 @@
             map.setCenter([8.542623755567146, 47.40362428149714]); 
             map.addSource('CurrentPoint', {
                 'type': 'geojson',
-                'data': CurrentPoint
+                'data': [8.54384625978079, 47.40460386239871]
             });
             map.addSource('route', {
                 'type': 'geojson',
@@ -367,7 +363,6 @@
             setInterval(() => {
                 navigator.geolocation.getCurrentPosition(getPosition)
             }, 200);
-
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
