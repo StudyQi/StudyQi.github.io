@@ -108,7 +108,8 @@
                 };
                 nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
                 nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-                CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
+                //CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
+                CurrentPoint.features[0].geometry.coordinates = [Mylong, Mylat];
                 map.getSource('CurrentPoint').setData(CurrentPoint); 
             }
         /* ADD ROUTES */
@@ -392,6 +393,7 @@
             var r=confirm("Are you sure you want to stop recording?");
                 if (r==true)
                 {
+                recordedLocations.push({recording_end_at: Date.now(),});
                 recording = false;
                 document.getElementById('ParticipantID').disabled = false;
                 document.getElementById('startRecording').disabled = false;
