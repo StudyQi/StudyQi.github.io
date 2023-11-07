@@ -48,9 +48,9 @@
         });
         map.setMaxZoom(22);
         map.setMinZoom(16);
-        map.addControl(new mapboxgl.NavigationControl({visualizePitch:true}));
+        map.addControl(new mapboxgl.NavigationControl());
         // Add zoom and rotation controls to the map.
-
+        
         map.addControl(
             new mapboxgl.GeolocateControl({
             positionOptions: {
@@ -71,46 +71,29 @@
 
         // Initialize variables for mapping
         var myRoute
-        //var nearestPointOnLine
-        //var nearestPointCoords
-        //var Mylat
-        //var Mylong
-        //var Myaccuracy
-        //var Mytime
-        
-        /* LOCATION */
-        function getPosition(position){
-            var Mylat = position.coords.latitude
-            var Mylong = position.coords.longitude
-            var Myaccuracy = position.coords.accuracy
-            var Mytime = Date.now()
-            if (recording) {
-                recordedLocations.push({Mylong, Mylat, Mytime, Myaccuracy});
-            }
-            
-            var desiredLocation = {
+        var nearestPointOnLine
+        var nearestPointCoords
+        var Mylat
+        var Mylong
+        var Myaccuracy
+        var Mytime
+        var desiredLocation = {
             "type": "Feature",
             "geometry": {
             "type": "Point",
-            "coordinates": [Mylong, Mylat] 
+            "coordinates": [8.54384625978079, 47.40460386239871] 
             }
-            };
-        // Display the closest point on the route         
-            var nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
-            var nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-            var CurrentPoint = {
+        };
+        var CurrentPoint = {
             'type': 'FeatureCollection',
             'features': [{
             'type': 'Feature',
             'properties': {},
             'geometry': {
             'type': 'Point',
-            'coordinates': [Mylong,Mylat]
+            'coordinates': [8.54384625978079, 47.40460386239871]
             }}]
-            };
-            //CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
-            map.getSource('CurrentPoint').setData(CurrentPoint); 
-        }
+        };      
         /* ADD ROUTES */
         document.getElementById('Route_1').addEventListener('click', () => {
             myRoute = {"type": "FeatureCollection", "features": [{"type": "Feature", 
@@ -401,15 +384,31 @@
         document.getElementById('Download_Interactions').addEventListener('click', () => {
             downloadInteractionData();
         });
-        
+
+         /* LOCATION */
+        //Real time location tracker
         if (! navigator.geolocation){
             console.log('your browser does not support the geolocation')
         } else {
             setInterval(() => {
                 navigator.geolocation.getCurrentPosition(getPosition)
-            }, 200);
+            }, 500);
         }
-
+        function getPosition(position){
+            Mylat = position.coords.latitude
+            Mylong = position.coords.longitude
+            Myaccuracy = position.coords.accuracy
+            Mytime = Date.now()
+            if (recording) {
+                recordedLocations.push({Mylong, Mylat, Mytime, Myaccuracy});
+            }
+        // Display the closest point on the route  
+            desiredLocation.features[0].geometry.coordinates = [Mylong, Mylat]      
+            nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
+            nearestPointCoords = nearestPointOnLine.geometry.coordinates;
+            CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
+            map.getSource('CurrentPoint').setData(CurrentPoint); 
+        }
         /* INTERACTION */
         function startRecording() {
             map.on('zoomend', recordZoom);
