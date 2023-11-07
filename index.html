@@ -59,7 +59,7 @@
             // When active the map will receive updates to the device's location as it changes.
             trackUserLocation: true,
             // Draw an arrow next to the location dot to indicate which direction the device is heading.
-            showUserHeading: true,
+            showUserHeading: false,
             showAccuracyCircle: false
             })
         );
@@ -71,29 +71,10 @@
 
         // Initialize variables for mapping
         var myRoute
-        var nearestPointOnLine
-        var nearestPointCoords
         var Mylat
         var Mylong
         var Myaccuracy
         var Mytime
-        var desiredLocation = {
-            "type": "Feature",
-            "geometry": {
-            "type": "Point",
-            "coordinates": [8.54384625978079, 47.40460386239871] 
-            }
-        };
-        var CurrentPoint = {
-            'type': 'FeatureCollection',
-            'features': [{
-            'type': 'Feature',
-            'properties': {},
-            'geometry': {
-            'type': 'Point',
-            'coordinates': [8.54384625978079, 47.40460386239871]
-            }}]
-        };      
         /* ADD ROUTES */
         document.getElementById('Route_1').addEventListener('click', () => {
             myRoute = {"type": "FeatureCollection", "features": [{"type": "Feature", 
@@ -104,10 +85,6 @@
                 [8.54268969, 47.40511817], [8.54279698, 47.40514359]]}, 
                 "id": "232ee6a8-c4fc-4775-a7e6-a033cf8e6e9b", "properties": {"name": ""}}]}
             map.setCenter([8.544270110877253, 47.40599603821031]);
-            map.addSource('CurrentPoint', {
-                'type': 'geojson',
-                'data': [8.54384625978079, 47.40460386239871]
-            });
             map.addSource('mask',{
                 'type': 'geojson',
                 'data': {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": 
@@ -200,15 +177,6 @@
                     'fill-outline-color': 'rgb(255, 255, 255)'
                 }
             });
-            map.addLayer({
-                'id': 'CurrentPoint', 
-                'type': 'circle',
-                'source': 'CurrentPoint',
-                'paint': {
-                'circle-radius': 8, 
-                'circle-color': '#c65247' 
-                }
-                }); 
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -224,10 +192,6 @@
                 [8.54177266, 47.40345148], [8.54166473, 47.40340355], [8.54138024, 47.40327776], [8.54121608, 47.40317316], 
                 [8.54109091, 47.40303374]]}, "id": "a2ee216a-943f-4a61-b975-2e214b5dcf73", "properties": {"name": ""}}]}
             map.setCenter([8.542623755567146, 47.40362428149714]); 
-            map.addSource('CurrentPoint', {
-                'type': 'geojson',
-                'data': [8.54384625978079, 47.40460386239871]
-            });
             map.addSource('route', {
                 'type': 'geojson',
                 'data': myRoute
@@ -331,15 +295,6 @@
                     'fill-outline-color': 'rgb(255, 255, 255)'
                 }
             });
-            map.addLayer({
-                'id': 'CurrentPoint', 
-                'type': 'circle',
-                'source': 'CurrentPoint',
-                'paint': {
-                'circle-radius': 8, 
-                'circle-color': '#c65247' 
-                }
-                }); 
             document.getElementById('Route_1').disabled = true;
             document.getElementById('Route_2').disabled = true;
         });
@@ -402,12 +357,6 @@
             if (recording) {
                 recordedLocations.push({Mylong, Mylat, Mytime, Myaccuracy});
             }
-        // Display the closest point on the route  
-            desiredLocation.features[0].geometry.coordinates = [Mylong, Mylat]      
-            nearestPointOnLine = turf.pointOnLine(myRoute, desiredLocation);
-            nearestPointCoords = nearestPointOnLine.geometry.coordinates;
-            CurrentPoint.features[0].geometry.coordinates = [nearestPointCoords[0], nearestPointCoords[1]];
-            map.getSource('CurrentPoint').setData(CurrentPoint); 
         }
         /* INTERACTION */
         function startRecording() {
