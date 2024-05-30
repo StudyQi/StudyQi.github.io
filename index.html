@@ -305,7 +305,7 @@
 
         document.getElementById('startRecording').addEventListener('click', () => {
             recordedLocations.push({recording_start_at: Date.now(),});
-            alert("You have started recording");
+            alert('You have started recording for participant' + participant);
             recording = true;
             document.getElementById('startRecording').disabled = true;
             document.getElementById('ParticipantID').disabled = true;
