@@ -32,8 +32,6 @@
         <button type ="button" id="ParticipantID">Participant ID</button>
         <button type ="button" id="startRecording" disabled>Start Recording</button>
         <button type ="button" id="stopRecording" disabled>Stop Recording</button>
-        <button type ="button" id="Download_Locations" disabled>Download Locations</button>
-        <button type ="button" id="Download_Interactions" disabled>Download Interactions</button>
     </div>
     <div id = "map"></div>
     <script>
@@ -312,8 +310,6 @@
             document.getElementById('startRecording').disabled = true;
             document.getElementById('ParticipantID').disabled = true;
             document.getElementById('stopRecording').disabled = false;
-            document.getElementById('Download_Locations').disabled = true;
-            document.getElementById('Download_Interactions').disabled = true;
             startRecording();
         });
         // Function to stop recording
@@ -326,17 +322,10 @@
                 document.getElementById('ParticipantID').disabled = false;
                 document.getElementById('startRecording').disabled = false;
                 document.getElementById('stopRecording').disabled = true;
-                document.getElementById('Download_Locations').disabled = false;
-                document.getElementById('Download_Interactions').disabled = false;
                 stopRecording();
+                downloadLocations();
+                downloadInteractionData();
                 }
-        });
-        // Funcation to download 
-        document.getElementById('Download_Locations').addEventListener('click', () => {
-            downloadLocations();
-        });
-        document.getElementById('Download_Interactions').addEventListener('click', () => {
-            downloadInteractionData();
         });
 
          /* LOCATION */
